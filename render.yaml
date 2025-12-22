@@ -1,0 +1,44 @@
+# Render Blueprint - Pokus AI
+# Deploy with: https://render.com/deploy
+
+services:
+  # Python Backend (FastAPI + LangGraph)
+  - type: web
+    name: pokus-agents
+    runtime: docker
+    dockerfilePath: ./apps/agents/Dockerfile
+    dockerContext: ./apps/agents
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://pokus-web.onrender.com
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LANGSMITH_TRACING
+        value: "true"
+      - key: LANGSMITH_ENDPOINT
+        value: https://api.smith.langchain.com
+      - key: LANGSMITH_API_KEY
+        sync: false
+      - key: LANGSMITH_PROJECT
+        value: pokus-ai
+
+  # Next.js Frontend
+  - type: web
+    name: pokus-web
+    runtime: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: ./apps/web
+    region: oregon
+    plan: free
+    envVars:
+      - key: AGENT_URL
+        value: https://pokus-agents.onrender.com
+      - key: OPENAI_API_KEY
+        sync: false

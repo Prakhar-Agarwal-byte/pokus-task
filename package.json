@@ -1,0 +1,22 @@
+{
+  "name": "pokus-task",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-agent system for real-world task completion",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter web dev\" \"pnpm --filter agents dev\"",
+    "dev:web": "pnpm --filter web dev",
+    "dev:agents": "pnpm --filter agents dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "install:all": "pnpm install && cd apps/agents && pip install -r requirements.txt"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

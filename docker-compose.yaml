@@ -1,0 +1,73 @@
+# Pokus AI - Docker Compose Configuration
+# Run with: docker-compose up --build
+
+version: '3.8'
+
+services:
+  # Python Backend (FastAPI + LangGraph)
+  agents:
+    build:
+      context: ./apps/agents
+      dockerfile: Dockerfile
+    container_name: pokus-agents
+    ports:
+      - "8000:8000"
+    environment:
+      # OpenAI API (Required)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # Tavily Web Search (Required)
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      # Frontend URL for CORS
+      - FRONTEND_URL=http://localhost:3000
+      # LangSmith Tracing (Optional)
+      - LANGSMITH_TRACING=${LANGSMITH_TRACING:-true}
+      - LANGSMITH_ENDPOINT=${LANGSMITH_ENDPOINT:-https://api.smith.langchain.com}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-pokus-ai}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - pokus-network
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: pokus-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Agent backend URL (internal Docker network)
+      - NEXT_PUBLIC_AGENT_URL=http://localhost:8000
+      - AGENT_URL=http://agents:8000
+      # OpenAI key for CopilotKit runtime
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      agents:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - pokus-network
+
+networks:
+  pokus-network:
+    driver: bridge
+    name: pokus-network
+
+# Optional: Add volumes for persistent data in the future
+# volumes:
+#   agents-data:
+#   web-cache:

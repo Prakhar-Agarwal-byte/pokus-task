@@ -1,0 +1,27 @@
+# Core dependencies
+fastapi>=0.115.0,<0.116.0
+uvicorn>=0.32.0
+pydantic>=2.9.0
+
+# LangChain and LangGraph (updated for CopilotKit 0.1.74 compatibility)
+langchain>=0.3.3
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langgraph>=0.3.25
+langgraph-prebuilt>=0.1.0
+langgraph-sdk>=0.1.32
+langgraph-checkpoint>=2.0.0
+
+# CopilotKit
+copilotkit>=0.1.74
+
+# Web search
+tavily-python>=0.5.0
+
+# Utilities
+python-dotenv>=1.0.0
+httpx>=0.27.2,<0.28.0
+aiohttp>=3.10.0
+
+# Development
+python-multipart>=0.0.12
